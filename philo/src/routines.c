@@ -12,7 +12,7 @@
 
 #include "../inc/philosophers.h"
 
-static void	helper_eat(t_philosopher *philo, t_simulation *sim,
+static void	helper_eat(t_philo *philo, t_sim *sim,
 			int left, int right)
 {
 	pthread_mutex_lock(&philo->meal_mutex);
@@ -25,15 +25,15 @@ static void	helper_eat(t_philosopher *philo, t_simulation *sim,
 	pthread_mutex_unlock(&sim->forks[right]);
 }
 
-static void	eat(t_philosopher *philo)
+static void	eat(t_philo *philo)
 {
-	t_simulation	*sim;
+	t_sim	*sim;
 	int				left;
 	int				right;
 
 	sim = philo->sim;
 	left = philo->id - 1;
-	right = philo->id % sim->num_philosophers;
+	right = philo->id % sim->num_philos;
 	if (philo->id % 2 == 0)
 	{
 		pthread_mutex_lock(&sim->forks[right]);
@@ -52,9 +52,9 @@ static void	eat(t_philosopher *philo)
 	helper_eat(philo, sim, left, right);
 }
 
-static void	sleep_and_think(t_philosopher *philo)
+static void	sleep_and_think(t_philo *philo)
 {
-	t_simulation	*sim;
+	t_sim	*sim;
 
 	sim = philo->sim;
 	print_state(philo, "is sleeping");
@@ -62,14 +62,14 @@ static void	sleep_and_think(t_philosopher *philo)
 	print_state(philo, "is thinking");
 }
 
-void	*philosopher_routine(void *arg)
+void	*philo_routine(void *arg)
 {
-	t_philosopher	*philo;
-	t_simulation	*sim;
+	t_philo	*philo;
+	t_sim	*sim;
 
-	philo = (t_philosopher *)arg;
+	philo = (t_philo *)arg;
 	sim = philo->sim;
-	if (sim->num_philosophers == 1)
+	if (sim->num_philos == 1)
 	{
 		pthread_mutex_lock(&sim->forks[0]);
 		print_state(philo, "has taken a fork");
@@ -79,10 +79,10 @@ void	*philosopher_routine(void *arg)
 	}
 	if (philo->id % 2 == 0)
 		usleep(1000);
-	while (!is_simulation_finished(sim))
+	while (!is_sim_finished(sim))
 	{
 		eat(philo);
-		if (is_simulation_finished(sim))
+		if (is_sim_finished(sim))
 			break ;
 		sleep_and_think(philo);
 	}

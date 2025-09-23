@@ -12,12 +12,12 @@
 
 #include "../inc/philosophers.h"
 
-static void	assign_forks(t_simulation *sim)
+static void	assign_forks(t_sim *sim)
 {
 	int	i;
 
 	i = 0;
-	while (i < sim->num_philosophers)
+	while (i < sim->num_philos)
 	{
 		if (pthread_mutex_init(&sim->forks[i], NULL) != 0)
 		{
@@ -29,9 +29,9 @@ static void	assign_forks(t_simulation *sim)
 	}
 }
 
-static int	init_forks(t_simulation *sim)
+static int	init_forks(t_sim *sim)
 {
-	sim->forks = malloc(sizeof(pthread_mutex_t) * sim->num_philosophers);
+	sim->forks = malloc(sizeof(pthread_mutex_t) * sim->num_philos);
 	if (!sim->forks)
 	{
 		printf("Error: malloc forks\n");
@@ -41,75 +41,75 @@ static int	init_forks(t_simulation *sim)
 	if (pthread_mutex_init(&sim->print_mutex, NULL) != 0)
 	{
 		printf("Error: mutex init\n");
-		destroy_forks_on_failure(sim->forks, sim->num_philosophers);
+		destroy_forks_on_failure(sim->forks, sim->num_philos);
 		return (FAILURE);
 	}
 	return (SUCCESS);
 }
 
-static void	create_philosophers(t_simulation *sim)
+static void	create_philos(t_sim *sim)
 {
 	int	i;
 
 	i = 0;
-	while (i < sim->num_philosophers)
+	while (i < sim->num_philos)
 	{
-		sim->philosophers[i].id = i + 1;
-		sim->philosophers[i].meals_eaten = 0;
-		sim->philosophers[i].last_meal = sim->start_timestamp;
-		sim->philosophers[i].sim = sim;
-		if (pthread_mutex_init(&sim->philosophers[i].meal_mutex, NULL) != 0)
+		sim->philos[i].id = i + 1;
+		sim->philos[i].meals_eaten = 0;
+		sim->philos[i].last_meal = sim->start_timestamp;
+		sim->philos[i].sim = sim;
+		if (pthread_mutex_init(&sim->philos[i].meal_mutex, NULL) != 0)
 		{
 			printf("Error: mutex init\n");
-			destroy_philosophers_on_failure(sim->philosophers, i);
+			destroy_philos_on_failure(sim->philos, i);
 			return ;
 		}
 		i++;
 	}
 }
 
-static int	init_philosophers(t_simulation *sim)
+static int	init_philos(t_sim *sim)
 {
-	sim->philosophers = malloc(sizeof(t_philosopher) * sim->num_philosophers);
-	if (!sim->philosophers)
+	sim->philos = malloc(sizeof(t_philo) * sim->num_philos);
+	if (!sim->philos)
 	{
-		printf("Error: malloc philosophers\n");
+		printf("Error: malloc philos\n");
 		return (FAILURE);
 	}
-	create_philosophers(sim);
+	create_philos(sim);
 	if (pthread_mutex_init(&sim->print_mutex, NULL) != 0)
 	{
 		printf("Error: mutex init (print_mutex)\n");
-		destroy_forks_on_failure(sim->forks, sim->num_philosophers);
+		destroy_forks_on_failure(sim->forks, sim->num_philos);
 		return (FAILURE);
 	}
 	return (SUCCESS);
 }
 
-int	init_simulation(t_simulation *sim)
+int	init_sim(t_sim *sim)
 {
-	sim->simulation_finished = 0;
+	sim->sim_finished = 0;
 	sim->start_timestamp = current_timestamp_ms();
 	if (init_forks(sim) == FAILURE)
 		return (FAILURE);
 	if (pthread_mutex_init(&sim->eating_lock, NULL) != 0)
 	{
 		printf("Error: mutex init (eating_lock)\n");
-		destroy_forks_on_failure(sim->forks, sim->num_philosophers);
+		destroy_forks_on_failure(sim->forks, sim->num_philos);
 		return (FAILURE);
 	}
 	if (pthread_mutex_init(&sim->finish_mutex, NULL) != 0)
 	{
 		printf("Error: mutex init (finish_mutex)\n");
 		pthread_mutex_destroy(&sim->eating_lock);
-		destroy_forks_on_failure(sim->forks, sim->num_philosophers);
+		destroy_forks_on_failure(sim->forks, sim->num_philos);
 		return (FAILURE);
 	}
-	if (init_philosophers(sim) == FAILURE)
+	if (init_philos(sim) == FAILURE)
 	{
 		pthread_mutex_destroy(&sim->finish_mutex);
 		pthread_mutex_destroy(&sim->eating_lock);
-		destroy_forks_on_failure(sim->forks, sim->num_philosophers);
+		destroy_forks_on_failure(sim->forks, sim->num_philos);
 		return (FAILURE);
 	}
 	return (SUCCESS);

@@ -56,11 +56,11 @@ static int	validate_arguments(int argc, char **argv)
 	return (SUCCESS);
 }
 
-static int	convert_args(t_simulation *sim, int argc, char **argv)
+static int	convert_args(t_sim *sim, int argc, char **argv)
 {
 	if (validate_arguments(argc, argv) == FAILURE)
 		return (FAILURE);
-	sim->num_philosophers = parse_int(argv[1]);
+	sim->num_philos = parse_int(argv[1]);
 	sim->time_to_die = parse_int(argv[2]);
 	sim->time_to_eat = parse_int(argv[3]);
 	sim->time_to_sleep = parse_int(argv[4]);
@@ -71,11 +71,11 @@ static int	convert_args(t_simulation *sim, int argc, char **argv)
 	return (SUCCESS);
 }
 
-int	parse_args(t_simulation *sim, int argc, char **argv)
+int	parse_args(t_sim *sim, int argc, char **argv)
 {
 	if (argc != 5 && argc != 6)
 	{
-		printf("Usage: %s num_philosophers ", argv[0]);
+		printf("Usage: %s num_philos ", argv[0]);
 		printf("time_to_die time_to_eat time_to_sleep [num_must_eat]\n");
 		return (FAILURE);
 	}

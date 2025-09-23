@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   philosophers.h                                     :+:      :+:    :+:   */
+/*   philos.h                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: paalexan <paalexan@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -34,7 +34,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-# define ARG_NUM_PHILOSOPHERS "num_philosophers"
+# define ARG_NUM_PHILOSOPHERS "num_philos"
 # define ARG_TIME_TO_DIE      "time_to_die"
 # define ARG_TIME_TO_EAT      "time_to_eat"
 # define ARG_TIME_TO_SLEEP    "time_to_sleep"
@@ -46,9 +46,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-struct	s_simulation;
+struct	s_sim;
 
-typedef struct s_philosopher
+typedef struct s_philo
 {
 	int					id;
 	int					meals_eaten;
@@ -58,17 +58,17 @@ typedef struct s_philosopher
 	pthread_t			thread;
 	pthread_mutex_t		meal_mutex;
 
-	struct s_simulation	*sim;
-}	t_philosopher;
+	struct s_sim	*sim;
+}	t_philo;
 
-typedef struct s_simulation
+typedef struct s_sim
 {
-	int				num_philosophers;
+	int				num_philos;
 	int				time_to_die;
 	int				time_to_eat;
 	int				time_to_sleep;
 	int				num_must_eat;
-	int				simulation_finished;
+	int				sim_finished;
 
 	long			start_timestamp;
 
@@ -77,8 +77,8 @@ typedef struct s_simulation
 	pthread_mutex_t	eating_lock;
 	pthread_mutex_t	finish_mutex;
 
-	t_philosopher	*philosophers;
-}	t_simulation;
+	t_philo	*philos;
+}	t_sim;
 
 typedef enum e_status
 {
@@ -93,9 +93,9 @@ typedef enum e_status
 /*                                                                            */
 /* ************************************************************************** */
 
-int			init_simulation(t_simulation *sim);
-int			is_simulation_finished(t_simulation *sim);
-void		set_simulation_finished(t_simulation *sim, int status);
+int			init_sim(t_sim *sim);
+int			is_sim_finished(t_sim *sim);
+void		set_sim_finished(t_sim *sim, int status);
 
 /* ************************************************************************** */
 /*                                                                            */
@@ -103,7 +103,7 @@ void		set_simulation_finished(t_simulation *sim, int status);
 /*                                                                            */
 /* ************************************************************************** */
 
-int			parse_args(t_simulation *sim, int argc, char **argv);
+int			parse_args(t_sim *sim, int argc, char **argv);
 
 /* ************************************************************************** */
 /*                                                                            */
@@ -111,8 +111,8 @@ int			parse_args(t_simulation *sim, int argc, char **argv);
 /*                                                                            */
 /* ************************************************************************** */
 
-int			create_philosopher_threads(t_simulation *sim);
-void		join_philosopher_threads(t_simulation *sim);
+int			create_philo_threads(t_sim *sim);
+void		join_philo_threads(t_sim *sim);
 
 /* ************************************************************************** */
 /*                                                                            */
@@ -120,7 +120,7 @@ void		join_philosopher_threads(t_simulation *sim);
 /*                                                                            */
 /* ************************************************************************** */
 
-void		*philosopher_routine(void *arg);
+void		*philo_routine(void *arg);
 void		*monitor_routine(void *arg);
 
 /* ************************************************************************** */
@@ -132,7 +132,7 @@ void		*monitor_routine(void *arg);
 int			is_positive_integer(const char *str);
 const char	*get_arg_description(int index);
 long		current_timestamp_ms(void);
-void		precise_sleep(t_simulation *sim, int duration_ms);
+void		precise_sleep(t_sim *sim, int duration_ms);
 
 /* ************************************************************************** */
 /*                                                                            */
@@ -140,9 +140,9 @@ void		precise_sleep(t_simulation *sim, int duration_ms);
 /*                                                                            */
 /* ************************************************************************** */
 
-void		print_state(t_philosopher *philo, const char *msg);
+void		print_state(t_philo *philo, const char *msg);
 void		debug_print(const char *msg);
-void		debug_simulation(t_simulation *sim);
+void		debug_sim(t_sim *sim);
 
 /* ************************************************************************** */
 /*                                                                            */
@@ -150,9 +150,9 @@ void		debug_simulation(t_simulation *sim);
 /*                                                                            */
 /* ************************************************************************** */
 
-void		destroy_simulation(t_simulation *sim);
+void		destroy_sim(t_sim *sim);
 void		destroy_forks_on_failure(pthread_mutex_t *forks, int count);
-void		destroy_philosophers_on_failure(t_philosopher *philosophers,
+void		destroy_philos_on_failure(t_philo *philos,
 				int count);
 
 #endif

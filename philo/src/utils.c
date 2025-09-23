@@ -53,7 +53,7 @@ long	current_timestamp_ms(void)
 	return (ms);
 }
 
-void	precise_sleep(t_simulation *sim, int duration_ms)
+void	precise_sleep(t_sim *sim, int duration_ms)
 {
 	long	start;
 	long	now;
@@ -64,19 +64,19 @@ void	precise_sleep(t_simulation *sim, int duration_ms)
 		now = current_timestamp_ms();
 		if ((now - start) >= duration_ms)
 			break ;
-		if (is_simulation_finished(sim))
+		if (is_sim_finished(sim))
 			break ;
 		usleep(500);
 	}
 }
 
-void	print_state(t_philosopher *philo, const char *msg)
+void	print_state(t_philo *philo, const char *msg)
 {
-	t_simulation	*sim;
+	t_sim	*sim;
 	long			timestamp;
 
 	sim = philo->sim;
-	if (is_simulation_finished(sim))
+	if (is_sim_finished(sim))
 		return ;
 	pthread_mutex_lock(&sim->print_mutex);
 	timestamp = current_timestamp_ms() - sim->start_timestamp;

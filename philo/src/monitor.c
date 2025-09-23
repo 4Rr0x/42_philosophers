@@ -12,7 +12,7 @@
 
 #include "../inc/philosophers.h"
 
-static int	check_all_ate(t_simulation *sim)
+static int	check_all_ate(t_sim *sim)
 {
 	int	i;
 	int	full;
@@ -22,31 +22,31 @@ static int	check_all_ate(t_simulation *sim)
 		return (SUCCESS);
 	full = 0;
 	i = 0;
-	while (i < sim->num_philosophers)
+	while (i < sim->num_philos)
 	{
-		pthread_mutex_lock(&sim->philosophers[i].meal_mutex);
-		meals = sim->philosophers[i].meals_eaten;
-		pthread_mutex_unlock(&sim->philosophers[i].meal_mutex);
+		pthread_mutex_lock(&sim->philos[i].meal_mutex);
+		meals = sim->philos[i].meals_eaten;
+		pthread_mutex_unlock(&sim->philos[i].meal_mutex);
 		if (meals >= sim->num_must_eat)
 			full++;
 		i++;
 	}
-	if (full == sim->num_philosophers)
+	if (full == sim->num_philos)
 		return (FAILURE);
 	return (SUCCESS);
 }
 
-static void	kill_philo(t_simulation *sim, int i, long now)
+static void	kill_philo(t_sim *sim, int i, long now)
 {
 	pthread_mutex_lock(&sim->print_mutex);
 	printf("%ld %d died\n",
 		now - sim->start_timestamp,
-		sim->philosophers[i].id);
+		sim->philos[i].id);
 	pthread_mutex_unlock(&sim->print_mutex);
-	set_simulation_finished(sim, 1);
+	set_sim_finished(sim, 1);
 }
 
-static int	check_death(t_simulation *sim)
+static int	check_death(t_sim *sim)
 {
 	int		i;
 	long	last;
@@ -54,13 +54,13 @@ static int	check_death(t_simulation *sim)
 	long	now;
 
 	i = 0;
-	while (i < sim->num_philosophers)
+	while (i < sim->num_philos)
 	{
 		now = current_timestamp_ms();
-		pthread_mutex_lock(&sim->philosophers[i].meal_mutex);
-		last = sim->philosophers[i].last_meal;
+		pthread_mutex_lock(&sim->philos[i].meal_mutex);
+		last = sim->philos[i].last_meal;
 		diff = now - last;
-		pthread_mutex_unlock(&sim->philosophers[i].meal_mutex);
+		pthread_mutex_unlock(&sim->philos[i].meal_mutex);
 		if (diff > sim->time_to_die)
 		{
 			kill_philo(sim, i, now);
@@ -73,16 +73,16 @@ static int	check_death(t_simulation *sim)
 
 void	*monitor_routine(void *arg)
 {
-	t_simulation	*sim;
+	t_sim	*sim;
 
-	sim = (t_simulation *)arg;
-	while (!is_simulation_finished(sim))
+	sim = (t_sim *)arg;
+	while (!is_sim_finished(sim))
 	{
 		if (check_death(sim) == FAILURE)
 			return (NULL);
 		if (check_all_ate(sim) == FAILURE)
 		{
-			set_simulation_finished(sim, 1);
+			set_sim_finished(sim, 1);
 			return (NULL);
 		}
 		usleep(100);

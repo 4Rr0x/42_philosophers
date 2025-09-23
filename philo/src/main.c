@@ -12,22 +12,22 @@
 
 #include "../inc/philosophers.h"
 
-static int	setup_simulation(t_simulation *sim, int argc, char **argv)
+static int	setup_sim(t_sim *sim, int argc, char **argv)
 {
 	if (parse_args(sim, argc, argv) == FAILURE)
 		return (FAILURE);
-	if (init_simulation(sim) == FAILURE)
+	if (init_sim(sim) == FAILURE)
 		return (FAILURE);
 	return (SUCCESS);
 }
 
-static int	run_simulation(t_simulation *sim)
+static int	run_sim(t_sim *sim)
 {
 	pthread_t	monitor_thread;
 
-	if (create_philosopher_threads(sim) == FAILURE)
+	if (create_philo_threads(sim) == FAILURE)
 	{
-		destroy_simulation(sim);
+		destroy_sim(sim);
 		return (FAILURE);
 	}
 	if (pthread_create(&monitor_thread, NULL, monitor_routine, sim) != 0)
@@ -36,38 +36,38 @@ static int	run_simulation(t_simulation *sim)
 		return (FAILURE);
 	}
 	pthread_join(monitor_thread, NULL);
-	join_philosopher_threads(sim);
+	join_philo_threads(sim);
 	return (SUCCESS);
 }
 
-int	is_simulation_finished(t_simulation *sim)
+int	is_sim_finished(t_sim *sim)
 {
 	int	finished;
 
 	pthread_mutex_lock(&sim->finish_mutex);
-	finished = sim->simulation_finished;
+	finished = sim->sim_finished;
 	pthread_mutex_unlock(&sim->finish_mutex);
 	return (finished);
 }
 
-void	set_simulation_finished(t_simulation *sim, int status)
+void	set_sim_finished(t_sim *sim, int status)
 {
 	pthread_mutex_lock(&sim->finish_mutex);
-	sim->simulation_finished = status;
+	sim->sim_finished = status;
 	pthread_mutex_unlock(&sim->finish_mutex);
 }
 
 int	main(int argc, char **argv)
 {
-	t_simulation	sim;
+	t_sim	sim;
 
-	if (setup_simulation(&sim, argc, argv) == FAILURE)
+	if (setup_sim(&sim, argc, argv) == FAILURE)
 		return (FAILURE);
-	if (run_simulation(&sim) == FAILURE)
+	if (run_sim(&sim) == FAILURE)
 	{
-		destroy_simulation(&sim);
+		destroy_sim(&sim);
 		return (FAILURE);
 	}
-	destroy_simulation(&sim);
+	destroy_sim(&sim);
 	return (SUCCESS);
 }

@@ -12,14 +12,14 @@
 
 #include "../inc/philosophers.h"
 
-void	destroy_simulation(t_simulation *sim)
+void	destroy_sim(t_sim *sim)
 {
 	int	i;
 
 	if (sim->forks)
 	{
 		i = 0;
-		while (i < sim->num_philosophers)
+		while (i < sim->num_philos)
 		{
 			pthread_mutex_destroy(&sim->forks[i]);
 			i++;
@@ -28,15 +28,15 @@ void	destroy_simulation(t_simulation *sim)
 	}
 	pthread_mutex_destroy(&sim->print_mutex);
 	pthread_mutex_destroy(&sim->eating_lock);
-	if (sim->philosophers)
+	if (sim->philos)
 	{
 		i = 0;
-		while (i < sim->num_philosophers)
+		while (i < sim->num_philos)
 		{
-			pthread_mutex_destroy(&sim->philosophers[i].meal_mutex);
+			pthread_mutex_destroy(&sim->philos[i].meal_mutex);
 			i++;
 		}
-		free(sim->philosophers);
+		free(sim->philos);
 	}
 }
 
@@ -53,15 +53,15 @@ void	destroy_forks_on_failure(pthread_mutex_t *forks, int count)
 	free(forks);
 }
 
-void	destroy_philosophers_on_failure(t_philosopher *philosophers, int count)
+void	destroy_philos_on_failure(t_philo *philos, int count)
 {
 	int	i;
 
 	i = 0;
 	while (i < count)
 	{
-		pthread_mutex_destroy(&philosophers[i].meal_mutex);
+		pthread_mutex_destroy(&philos[i].meal_mutex);
 		i++;
 	}
-	free(philosophers);
+	free(philos);
 }
